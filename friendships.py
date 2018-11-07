@@ -1,5 +1,6 @@
-def import_friendships(file_name='friendships.txt'):
+def import_data(file_name='data.txt'):
     friendships = {}
+    reviews = {}
 
     current = None
     with open(file_name, 'r') as file:
