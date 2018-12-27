@@ -2,7 +2,7 @@ import numpy as np
 from loguru import logger
 from collections import Counter
 
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn import metrics
 
@@ -82,11 +82,18 @@ if __name__ == '__main__':
     logger.debug(f'Testing class distribution: {Counter(test_y)}')
 
     # Fit transform count vectorizer on training data
+    # CountVectorizer automatically tokenizes our texts and removes stopwords
     count_vectorizer = CountVectorizer()
     train_x = count_vectorizer.fit_transform(train_x)
+    logger.debug(count_vectorizer.vocabulary_)
 
     # Transform testing data with the fitted count vectorizer
     test_x = count_vectorizer.transform(test_x)
+
+    # Compute tf-idf for input sets
+    tf_transformer = TfidfTransformer(use_idf=False)
+    train_x = tf_transformer.fit_transform(train_x)
+    test_x = tf_transformer.transform(test_x)
 
     # Train Naive Bayes classifier on data
     bayes = MultinomialNB()
