@@ -63,3 +63,6 @@ downscaling. Finally, we wanted to see if including negation of word could impro
        micro avg       0.86      0.86      0.86      3044
        macro avg       0.86      0.86      0.86      3044
     weighted avg       0.86      0.86      0.86      3044
+    
+## Cross validation
+- Should be done in the future.

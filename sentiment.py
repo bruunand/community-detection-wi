@@ -10,6 +10,8 @@ from sklearn import metrics
 
 import random
 
+from friendships import import_data
+
 
 def _class_from_score(score):
     score_classes = {
@@ -23,7 +25,7 @@ def _class_from_score(score):
     return score_classes[score]
 
 
-def load_data(file_name):
+def load_sentiment_data(file_name):
     x, y = [], []
 
     current_class = None
@@ -69,6 +71,10 @@ def _undersample(x, y, random_state=0):
     return shuffle_lists(ret_x, ret_y)
 
 
+def _remove_html(corpus):
+    pass
+
+
 def _neg_transform(corpus):
     punctuation = re.compile('[.:;!?]')
     negatives = {'don\'t', 'never', 'nothing', 'nowhere', 'noone', 'none', 'not', 'no', 'hasn\'t', 'hadn\'t', 'can\'t',
@@ -95,10 +101,10 @@ def _neg_transform(corpus):
     return ret_corpus
 
 
-if __name__ == '__main__':
+def _train_model():
     classes = {0, 1}
-    train_x, train_y = load_data('SentimentTrainingData.txt')
-    test_x, test_y = load_data('SentimentTestingData.txt')
+    train_x, train_y = load_sentiment_data('SentimentTrainingData.txt')
+    test_x, test_y = load_sentiment_data('SentimentTestingData.txt')
     logger.debug('Loaded training and testing data')
 
     # Undersample
@@ -136,3 +142,13 @@ if __name__ == '__main__':
     predicted = bayes.predict(test_x)
     logger.info(f'Accuracy: {np.mean(predicted == test_y) * 100}%')
     logger.info(metrics.classification_report(test_y, predicted))
+
+    return bayes
+
+
+if __name__ == '__main__':
+    friendships, reviews = import_data()
+    for friend, review in reviews.items():
+        print(review)
+    model = _train_model()
+

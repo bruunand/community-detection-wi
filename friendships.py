@@ -7,13 +7,17 @@ def import_data(file_name='data.txt'):
         for line in file.readlines():
             if line.startswith('user'):
                 current = line.split()[1].lower()
-            elif line.startswith('friends'):
-                if not current:
-                    raise RuntimeError('Encountered friends before user.')
+            else:
+                if current:
+                    if line.startswith('friends'):
+                        # Like with the current user, all names are in lowercase
+                        friends = [friend.lower() for friend in line.split()[1:]]
 
-                # Like with the current user, all names are in lowercase
-                friends = [friend.lower() for friend in line.split()[1:]]
+                        friendships[current] = friends
+                    elif line.startswith('review'):
+                        review = line[8:].strip()  # Skip review header and space
 
-                friendships[current] = friends
+                        if review != '*':
+                            reviews[current] = review
 
-    return friendships
+    return friendships, reviews
