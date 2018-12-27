@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 from loguru import logger
 from collections import Counter
@@ -67,6 +69,32 @@ def _undersample(x, y, random_state=0):
     return shuffle_lists(ret_x, ret_y)
 
 
+def _neg_transform(corpus):
+    punctuation = re.compile('[.:;!?]')
+    negatives = {'don\'t', 'never', 'nothing', 'nowhere', 'noone', 'none', 'not', 'no', 'hasn\'t', 'hadn\'t', 'can\'t',
+                 'couldn\'t', 'shouldn\'t', 'won\'t', 'wouldn\'t', 'don\'t', 'doesn\'t', 'didn\'t', 'isn\'t', 'aren\'t',
+                 'ain\'t'}
+
+    ret_corpus = []
+
+    for text in corpus:
+        text = text.lower().split()
+        new_text = []
+
+        negate = False
+        for word in text:
+            new_text.append(word if not negate else f'neg_{word}')
+
+            if word in negatives:
+                negate = True
+            elif punctuation.findall(word):
+                negate = False
+
+        ret_corpus.append(' '.join(new_text))
+
+    return ret_corpus
+
+
 if __name__ == '__main__':
     classes = {0, 1}
     train_x, train_y = load_data('SentimentTrainingData.txt')
@@ -76,6 +104,10 @@ if __name__ == '__main__':
     # Undersample
     train_x, train_y = _undersample(train_x, train_y)
     test_x, test_y = _undersample(test_x, test_y)
+
+    # Perform negation on the input sets
+    train_x = _neg_transform(train_x)
+    test_x = _neg_transform(test_x)
 
     # Some statistics on the data
     logger.debug(f'Training class distribution: {Counter(train_y)}')

@@ -35,7 +35,7 @@ with TF.
 
 ## TF model
 - After including TF in the classification pipe, we got an accuracy of **87%**, not much better than without the
-downscaling. 
+downscaling. Finally, we wanted to see if including negation of word could improve our results.
 
 ## Trial #3 (TF)
                   precision    recall  f1-score   support
@@ -46,3 +46,20 @@ downscaling.
        micro avg       0.87      0.87      0.87      3044
        macro avg       0.87      0.87      0.87      3044
     weighted avg       0.87      0.87      0.87      3044
+    
+## Negation (with TF)
+- In our negation implementation, we prepend ***_neg*** to the word following a negation word.
+- Example input/output:
+    - Input: I am not happy today.
+    - Output: I am not neg_happy neg_today.
+- It seemingly made no difference as the resulting accuracy was **86%**. 
+
+## Trial #4 (Negation)
+                   precision    recall  f1-score   support
+    
+               0       0.86      0.86      0.86      1522
+               1       0.86      0.86      0.86      1522
+    
+       micro avg       0.86      0.86      0.86      3044
+       macro avg       0.86      0.86      0.86      3044
+    weighted avg       0.86      0.86      0.86      3044
