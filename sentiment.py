@@ -10,6 +10,8 @@ from sklearn import metrics
 
 import random
 
+from sklearn.pipeline import Pipeline
+
 from friendships import import_data
 
 
@@ -71,11 +73,8 @@ def _undersample(x, y, random_state=0):
     return shuffle_lists(ret_x, ret_y)
 
 
-def _remove_html(corpus):
-    pass
-
-
-def _neg_transform(corpus):
+def _preprocess(corpus):
+    """ Remove HTML and perform negation. """
     punctuation = re.compile('[.:;!?]')
     negatives = {'don\'t', 'never', 'nothing', 'nowhere', 'noone', 'none', 'not', 'no', 'hasn\'t', 'hadn\'t', 'can\'t',
                  'couldn\'t', 'shouldn\'t', 'won\'t', 'wouldn\'t', 'don\'t', 'doesn\'t', 'didn\'t', 'isn\'t', 'aren\'t',
@@ -84,7 +83,7 @@ def _neg_transform(corpus):
     ret_corpus = []
 
     for text in corpus:
-        text = text.lower().split()
+        text = text.lower().split()  # Remove HTML and split newlines
         new_text = []
 
         negate = False
@@ -112,43 +111,35 @@ def _train_model():
     test_x, test_y = _undersample(test_x, test_y)
 
     # Perform negation on the input sets
-    train_x = _neg_transform(train_x)
-    test_x = _neg_transform(test_x)
+    train_x = _preprocess(train_x)
+    test_x = _preprocess(test_x)
 
     # Some statistics on the data
     logger.debug(f'Training class distribution: {Counter(train_y)}')
     logger.debug(f'Testing class distribution: {Counter(test_y)}')
 
-    # Fit transform count vectorizer on training data
-    # CountVectorizer automatically tokenizes our texts and removes stopwords
-    count_vectorizer = CountVectorizer()
-    train_x = count_vectorizer.fit_transform(train_x)
-    logger.debug(count_vectorizer.vocabulary_)
-
-    # Transform testing data with the fitted count vectorizer
-    test_x = count_vectorizer.transform(test_x)
-
-    # Compute tf-idf for input sets
-    tf_transformer = TfidfTransformer(use_idf=False)
-    train_x = tf_transformer.fit_transform(train_x)
-    test_x = tf_transformer.transform(test_x)
-
-    # Train Naive Bayes classifier on data
-    bayes = MultinomialNB()
-    bayes.fit(train_x, train_y)
+    # Construct classifier as a pipeline
+    sent_classifier = Pipeline([
+        ('vectorizer', CountVectorizer()),
+        ('term-frequencyf', TfidfTransformer(use_idf=False)),
+        ('classifier', MultinomialNB())
+    ])
+    sent_classifier.fit(train_x, train_y)
     logger.debug('Model fitted to data')
 
     # Evaluate
-    predicted = bayes.predict(test_x)
+    predicted = sent_classifier.predict(test_x)
     logger.info(f'Accuracy: {np.mean(predicted == test_y) * 100}%')
     logger.info(metrics.classification_report(test_y, predicted))
 
-    return bayes
+    return sent_classifier
 
 
-if __name__ == '__main__':
-    friendships, reviews = import_data()
-    for friend, review in reviews.items():
-        print(review)
+def get_sentiments(reviews):
+    sentiments = {}
+
     model = _train_model()
+    for friend, review in reviews.items():
+        sentiments[friend] = model.predict([review])[0]
 
+    return sentiments
