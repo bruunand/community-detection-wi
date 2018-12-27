@@ -4,9 +4,7 @@ def import_data(file_name='data.txt'):
 
     current = None
     with open(file_name, 'r') as file:
-        lines = file.readlines()
-
-        for line in lines:
+        for line in file.readlines():
             if line.startswith('user'):
                 current = line.split()[1].lower()
             elif line.startswith('friends'):
