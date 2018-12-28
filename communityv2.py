@@ -5,7 +5,7 @@ import networkx as nx
 
 class Communities:
     def __init__(self):
-        self.friendships = import_data()
+        self.friendships, _ = import_data()
 
     def edge_to_remove(self, graph: nx.Graph):
         betweeness = nx.edge_betweenness_centrality(graph)
@@ -21,7 +21,7 @@ class Communities:
 
         graph_store = [graph.copy()]
 
-        while l != num_nodes:
+        while l != num_nodes and l < 15:
             graph.remove_edge(*self.edge_to_remove(graph))
             c = nx.connected_component_subgraphs(graph)
             l = len(list(c))
@@ -32,7 +32,7 @@ class Communities:
 
         modularities = []
         for index in range(len(graph_store)):
-            modularity = self.calculate_modularity(graph_store[index])
+            modularity = self.calculate_modularity(graph_store[index], graph_store[0])
             modularities.append((modularity, index))
 
         modularities.sort(key=lambda k: k[0], reverse=True)
@@ -41,29 +41,29 @@ class Communities:
 
 
 
-    def calculate_modularity(self, graph):
+    def calculate_modularity(self, graph, original_graf):
         sum = 0
         num_edges = graph.number_of_edges()
         for module in nx.connected_component_subgraphs(graph):
-            e = self.edges_in_module(module) / num_edges
-            a = self.edges_with_end_in_module(module) / num_edges
+            e = self.edges_in_module(module, original_graf.edges) / num_edges
+            a = self.edges_with_end_in_module(module, original_graf.edges) / num_edges
             sum += e - pow(a, 2)
 
         return sum
 
-    def edges_in_module(self, graph: nx.Graph):
+    def edges_in_module(self, graph: nx.Graph, edges):
         nodes = dict(graph.nodes)
         counter = 0
-        for v1, v2 in graph.edges:
+        for v1, v2 in edges:
             if v1 in nodes and v2 in nodes:
                 counter += 1
 
         return counter
 
-    def edges_with_end_in_module(self, graph: nx.Graph):
+    def edges_with_end_in_module(self, graph: nx.Graph, edges):
         nodes = dict(graph.nodes)
         counter = 0
-        for v1, v2 in graph.edges:
+        for v1, v2 in edges:
             if v1 in nodes or v2 in nodes:
                 counter += 1
 
@@ -76,13 +76,13 @@ class Communities:
     def make_graph(friendships: dict):
         graph = nx.Graph()
 
-        for user in list(friendships.keys())[:100]:
+        for user in list(friendships.keys()):
             graph.add_node(user)
 
-        for user, friends in list(friendships.items())[:100]:
-            [graph.add_edge(user, friend) for friend in friends[:10]]
+        for user, friends in list(friendships.items()):
+            [graph.add_edge(user, friend) for friend in friends]
 
         return graph
 
 c = Communities()
-c.girvan()
+print(c.girvan())
