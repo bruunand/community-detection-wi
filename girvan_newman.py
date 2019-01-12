@@ -62,6 +62,8 @@ class Communities:
 
         # Calculate modularity by summing percent of edges in a module and percent of edges with one vertex in a module
         for module in nx.connected_component_subgraphs(graph):
+            # There is an error when we are at the lowest level
+            # There are no edges, so we get a division by zero error
             edges_in_module = self.edges_in_module(module, original_graph.edges) / num_edges
             end_in_module = self.edges_with_end_in_module(module, original_graph.edges) / num_edges
             e_sum += edges_in_module - pow(end_in_module, 2)
