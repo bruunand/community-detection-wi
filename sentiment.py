@@ -3,15 +3,17 @@ import random
 import re
 from collections import Counter
 
+import bs4
 import numpy as np
 from loguru import logger
-from nltk import PorterStemmer as Stemmer
+from nltk import word_tokenize
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize as tokenize
 from sklearn import metrics
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
+
+stop_words = set(stopwords.words('english'))
 
 
 def _class_from_score(score):
@@ -144,8 +146,8 @@ def _naive_bayes():
     train_x, train_y = _undersample(train_x, train_y)
     test_x, test_y = _undersample(test_x, test_y)
 
-    train_x = [stem_words(text) for text in train_x]
-    test_x = [stem_words(text) for text in test_x]
+    train_x = [preprocess(text) for text in train_x]
+    test_x = [preprocess(text) for text in test_x]
 
     vocab = _create_vocabulary(train_x)
 
@@ -214,8 +216,9 @@ def _count_term_occurrence(data, labels, classes, vocab_index: dict):
 def _calc_score(matrix, term_freq_matrix, num_word_pr_class):
     pass
 
-def stem_words(text, language='english'):
-    """ Tokenizes a string, and stems the tokens
+
+def preprocess(text):
+    """ Tokenizes a string, and NOP the tokens
 
     Arguments:
         string {str} -- A string of words.
@@ -224,17 +227,14 @@ def stem_words(text, language='english'):
         list -- A list containing stemmed tokens.
     """
 
-    stemmer = Stemmer()
-    stop_words = set(stopwords.words(language))
+    # Remove HTML
+    soup = bs4.BeautifulSoup(text, 'lxml')
+    text = soup.text
 
-    # Tokenize and stem
-    stemmed = [stemmer.stem(token).lower().strip() for token in tokenize(text)]
-
-    # Get all tokens that is not a stop word and only contains alphanumeric letters.
-    words = [stem for stem in stemmed if stem not in stop_words and re.fullmatch(r'\w+', stem)]
+    # Get all tokens that is not a stop word and only contains alphanumeric letters
+    words = [token for token in word_tokenize(text) if token not in stop_words and re.match(r'\w+', token)]
 
     return words
-
 
 
 def get_sentiments(reviews):
@@ -245,3 +245,7 @@ def get_sentiments(reviews):
         sentiments[friend] = model.predict([review])[0]
 
     return sentiments
+
+
+if __name__ == "__main__":
+    _naive_bayes()
