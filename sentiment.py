@@ -4,6 +4,9 @@ from collections import Counter
 
 import numpy as np
 from loguru import logger
+from nltk import PorterStemmer as Stemmer
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize as tokenize
 from sklearn import metrics
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
@@ -28,7 +31,7 @@ def load_sentiment_data(file_name):
     current_class = None
 
     with open(file_name, 'r') as file:
-        for line in file.readlines():
+        for line in file.readlines()[:100]:
             split = [x.strip() for x in line.split(':')]
 
             if split[0] == 'review/score':
@@ -130,6 +133,109 @@ def _train_model():
     return sent_classifier
 
 
+def _naive_bayes():
+    classes = {0, 1}
+    train_x, train_y = load_sentiment_data('SentimentTrainingData.txt')
+    test_x, test_y = load_sentiment_data('SentimentTestingData.txt')
+    logger.debug('Loaded training and testing data')
+
+    # Undersample
+    train_x, train_y = _undersample(train_x, train_y)
+    test_x, test_y = _undersample(test_x, test_y)
+
+    train_x = [stem_words(text) for text in train_x]
+    test_x = [stem_words(text) for text in test_x]
+
+    vocab = _create_vocabulary(train_x)
+
+    vocab_index = {}
+    for i in range(len(vocab)):
+        vocab_index[vocab[i]] = i
+
+    matrix = _count_vectorizer(vocab, train_x, vocab_index)
+
+    class_prob = {}
+    num_data = len(train_y)
+
+    # Calculate the probability of a class occurring
+    for _class in classes:
+        count = train_y.count(_class)
+        class_prob[_class] = count / num_data
+
+    term_freq_matrix = _count_term_occurrence(train_x, train_y, classes, vocab_index)
+
+    num_word_pr_class = np.sum(term_freq_matrix, axis=0)
+
+    pass
+
+
+def _create_vocabulary(reviews):
+    vocab = set()
+    for review in reviews:
+        for term in review:
+            vocab.add(term)
+
+    return sorted(list(vocab))
+
+
+def _count_vectorizer(vocab, data, vocab_index):
+    length = len(vocab)
+
+    matrix = []
+    for review in data:
+        bitmap = np.zeros((length,))
+        for term in review:
+            if term in vocab_index:
+                bitmap[vocab_index[term]] += 1
+
+        matrix.append(bitmap)
+
+    return matrix
+
+
+def _count_term_occurrence(data, labels, classes, vocab_index: dict):
+    vocab_length = len(vocab_index.items())
+    matrix = np.zeros((vocab_length, len(classes)))
+
+    for text, label in zip(data, labels):
+        for term in text:
+            # Skips if not in dictionary - prob not necessary.
+            if term not in vocab_index:
+                continue
+
+            index = vocab_index[term]
+
+            matrix[index][label] += 1
+
+    return matrix
+
+
+def _calc_score(matrix, term_freq_matrix, num_word_pr_class):
+    pass
+
+def stem_words(text, language='english'):
+    """ Tokenizes a string, and stems the tokens
+
+    Arguments:
+        string {str} -- A string of words.
+
+    Returns:
+        list -- A list containing stemmed tokens.
+    """
+
+    stemmer = Stemmer()
+    stop_words = set(stopwords.words(language))
+
+    # Tokenize and stem
+    stemmed = [stemmer.stem(token).lower().strip() for token in tokenize(text)]
+
+    # Get all tokens that is not a stop word and only contains alphanumeric letters.
+    words = [stem for stem in stemmed if stem not in stop_words and re.fullmatch(r'\w+', stem)]
+
+    return words
+
+
+
 def get_sentiments(reviews):
     sentiments = {}
 
@@ -138,3 +244,5 @@ def get_sentiments(reviews):
         sentiments[friend] = model.predict([review])[0]
 
     return sentiments
+
+_naive_bayes()
