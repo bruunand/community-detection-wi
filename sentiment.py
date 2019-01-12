@@ -1,3 +1,4 @@
+import io
 import random
 import re
 from collections import Counter
@@ -27,7 +28,7 @@ def load_sentiment_data(file_name):
 
     current_class = None
 
-    with open(file_name, 'r') as file:
+    with io.open(file_name, mode='r', encoding='utf-8') as file:
         for line in file.readlines():
             split = [x.strip() for x in line.split(':')]
 
@@ -138,3 +139,4 @@ def get_sentiments(reviews):
         sentiments[friend] = model.predict([review])[0]
 
     return sentiments
+

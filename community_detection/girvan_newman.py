@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from loguru import logger
 
-from friendships import import_data
+from data_loader import import_data
 
 
 class Communities:

@@ -1,3 +1,5 @@
+import pickle
+
 import scipy
 
 import numpy as np
@@ -5,7 +7,7 @@ from loguru import logger
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
-from friendships import import_data
+from data_loader import import_data
 
 
 def make_laplacian(friendships, friend_idx_dict):
@@ -41,9 +43,6 @@ def make_adjacency_matrix(friendships, idx_friend_dict):
         for friend_idx in friends_idx:
             A[i][friend_idx] = 1
 
-            # Probably unnecessary
-            A[friend_idx][i] = 1
-
     return A
 
 
@@ -72,31 +71,28 @@ def run_spectral():
     L = make_laplacian(friendships, idx_friend_dict)
 
     # Find eigenvalues and eigenvectors
+    # eigh returns eigenvalues and eigenvectors sorted by eigenvalue
+    # This way we can get the second eigenvector, e.g. the one with the second smallest value
     eig_values, eig_vectors = scipy.linalg.eigh(L)
-    plt.plot(eig_values)
-    plt.show()
-    k = np.argmin(np.ediff1d(np.flipud(eig_vectors))) + 1
-    print(k)
-    #W = eig_vectors[:, indices]
-    u = eig_vectors[:, 1]
 
-    sort = sorted(eig_values)
+    # The second eigenvector is currently a column, we need to transpose it to use it in k-means
+    second_vector = eig_vectors[:, 1]
 
-    u_pairs = ((value, index) for index, value in enumerate(u))
-    test = np.array(sorted(u_pairs, key=lambda tup: tup[0]))
-    return friendships, idx_friend_dict, u, test
+    # Perform k-means on the eigenvector values
+    kmeans = KMeans(n_clusters=4).fit(second_vector.reshape(-1, 1))
+    person_cluster_dict = dict()
+    for idx, label in enumerate(kmeans.labels_):
+        logger.info(f'{idx_friend_dict[idx]} has label {label}')
+
+        person_cluster_dict[idx_friend_dict[idx]] = label
+
+    # Write communities to a file
+    pickle.dump(person_cluster_dict, open('communities.p', 'wb'))
 
 
 if __name__ == "__main__":
-    friendships, idx_dict, res, test = run_spectral()
-    #vec = np.array([np.log(v) for v in res])
+    run_spectral()
 
-    kmeans = KMeans(n_clusters=4).fit(res.reshape(-1, 1))
-    logger.info(kmeans.labels_)
-
-    for idx, label in enumerate(kmeans.labels_):
-        logger.info(f'{idx_dict[idx]} has label {label}')
-
-    plt.plot(vec)
-    plt.show()
+    # plt.plot(sorted(res))
+    # plt.show()
 
