@@ -1,6 +1,18 @@
-# Friendship issues
+# Community detection
+- We tried both spectral clustering and hierarchical clustering using the Girvan Newman algorithm
+- The Girvan Newman algorithm was simply too slow. In practice, it took several minutes for just one betweenness
+calculation
+
+## Spectral clustering
+- In order to detect the amount of clusters, we plotted the values of the second eigenvector
+- This clearly showed that there were 4 communities, some severally bigger than others
+![Plot of the values of the second eigenvector](community_detection/eigenvector_values.png "Eigenvector value plot")
+- Given our knowledge that **k=4**, we ran the k-means clustering algorithm on the eigenvector in order to assign to
+each person a cluster
+
+## Friendship issues
 - One of our biggest issues were related to pre-processing
-- We were lowercasing all names, but it turns out that there are differnet people with the same name, although with
+- We were lowercasing all names, but it turns out that there are different people with the same name, although with
 different casing
 
 # Sentiment analysis
