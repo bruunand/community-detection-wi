@@ -1,17 +1,20 @@
+import io
+
+
 def import_data(file_name='data.txt'):
     friendships = {}
     reviews = {}
 
     current = None
-    with open(file_name, 'r') as file:
+    with io.open(file_name, mode='r', encoding='utf-8') as file:
         for line in file.readlines():
             if line.startswith('user'):
-                current = line.split()[1].lower()
+                current = line[6:].strip()
             else:
                 if current:
                     if line.startswith('friends'):
-                        # Like with the current user, all names are in lowercase
-                        friends = [friend.lower() for friend in line.split()[1:]]
+                        # Strip any newline characters from the friend
+                        friends = [friend.strip() for friend in line.split('\t')[1:]]
 
                         friendships[current] = friends
                     elif line.startswith('review'):
