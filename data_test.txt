@@ -1,0 +1,39 @@
+user: anders
+friends:	theis	brams	jarlund
+
+user: theis
+friends:	anders	brams	jarlund
+
+user: matias
+friends:	thomas	simon	anders	andreas
+
+user: andreas
+friends:    thomas	simon	matias
+
+user: thomas
+friends:	matias	simon	andreas
+
+user: simon
+friends:	matias	thomas	andreas
+
+user: brams
+friends:	anders	jarlund	theis
+
+user: jarlund
+friends:	anders	theis	brams
+
+user: peter
+friends:	dolog
+
+user: dolog
+friends:	peter
+
+user: bastian
+friends:	12	02
+
+user: 12
+friends: bastian	02
+
+user: 02
+friends:	bastian	12
+

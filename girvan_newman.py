@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from loguru import logger
 
 from friendships import import_data
 
@@ -18,11 +19,10 @@ class Communities:
 
         return highest[0][0]
 
-    def girvan(self):
+    def run_girvan(self):
         # Get the graph
         graph = self.make_graph(self.friendships)
-        nx.draw(graph)
-        plt.show()
+
         # Get status of starting graph
         num_nodes = graph.number_of_nodes()
         components = nx.connected_component_subgraphs(graph)
@@ -33,8 +33,9 @@ class Communities:
 
         # Continue removing edges until all edges are removed or there are 15 communities.
         # We stop at 10 as we expect between 2 and 10 communities.
-        while n_components != num_nodes and n_components < 10:
+        while n_components != num_nodes and n_components < 4:
             graph.remove_edge(*self.edge_to_remove(graph))
+            logger.info('Removing edge')
             components = nx.connected_component_subgraphs(graph)
             n_components = len(list(components))
 
@@ -42,6 +43,8 @@ class Communities:
             if n_components > prev_l:
                 graph_store.append(graph.copy())
                 prev_l = n_components
+
+                logger.info(f'{n_components} components')
 
         # Calculate modularity for all stored splits
         modularities = []
@@ -59,6 +62,10 @@ class Communities:
     def calculate_modularity(self, graph, original_graph):
         e_sum = 0
         num_edges = graph.number_of_edges()
+        # If there are no edges, the modularity is zero
+        # May possibly be wrong
+        if not num_edges:
+            return 0
 
         # Calculate modularity by summing percent of edges in a module and percent of edges with one vertex in a module
         for module in nx.connected_component_subgraphs(graph):
@@ -105,8 +112,9 @@ class Communities:
 
 if __name__ == "__main__":
     c = Communities()
-    result = c.girvan()
+    result = c.run_girvan()
 
+    logger.info(f'{len(list(nx.connected_component_subgraphs(result)))} communities')
     nx.draw(result)
     plt.show()
-    print(result)
+    logger.info(result)
