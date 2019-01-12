@@ -1,18 +1,13 @@
+import random
 import re
+from collections import Counter
 
 import numpy as np
 from loguru import logger
-from collections import Counter
-
+from sklearn import metrics
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn import metrics
-
-import random
-
 from sklearn.pipeline import Pipeline
-
-from friendships import import_data
 
 
 def _class_from_score(score):

@@ -1,24 +1,25 @@
 import math
-import pickle
 import random
 
 import numpy as np
 
 from friendships import import_data
-import networkx as nx
+
 
 class Communities:
     def __init__(self):
-        self.friendships = import_data()
+        self.friendships, _ = import_data()
         self.friendships_lst = list(self.friendships.items())
         self.edge_matrix = self.make_matrix()
 
     def spectral(self):
         print('Calculating laplacian')
-        l = self.unnormalized_l()
+        l = self.unnormalized_laplacian()
 
         print('Calculating eigenvector')
-        eigen = np.linalg.eig(l)[0].real.tolist()
+        w, v = np.linalg.eig(l)
+
+        eigen = np.linalg.eig(l)[1][0].real.tolist()
         e_dict = {}
 
         # Create tuple of index and eigen value
@@ -27,13 +28,13 @@ class Communities:
 
         print('Starting making all communities')
 
-        # Sorts eigenvector after eigen value
+        # Sorts eigenvector after eigenvalue
         eigen = sorted(e_dict.items(), key=lambda k: float(k[1]))
 
         communities = [eigen]
         community_store = [communities.copy()]
 
-        # Split on highst difference until each vertices is in its own community or have made 15 splits.
+        # Split on highest difference until each vertices is in its own community or have made 15 splits.
         while len(communities) != len(self.friendships_lst) and len(community_store) < 15:
             communities = self.split_highest(communities)
             community_store.append(communities.copy())  # Save all splits.
@@ -62,7 +63,7 @@ class Communities:
         # Calculates the modularity of the communities.
         for community in communities:
             e = self.edges_contained_in_community(community) / num_edges  # probability and edge is in the community.
-            a = self.edges_with_vertice_in_community(community) / num_edges  # probability a random edge would fall into the community.
+            a = self.edges_with_vertices_in_community(community) / num_edges  # probability a random edge would fall into the community.
 
             modularity += e - math.pow(a, 2)
 
@@ -99,7 +100,7 @@ class Communities:
 
         return num
 
-    def edges_with_vertice_in_community(self, community):
+    def edges_with_vertices_in_community(self, community):
         num = 0
         length = len(self.edge_matrix[0])
 
@@ -114,10 +115,10 @@ class Communities:
 
         return num
 
-    def unnormalized_l(self):
-        d = self.make_degree(self.edge_matrix, len(self.edge_matrix[0]))
+    def unnormalized_laplacian(self):
+        D = self.make_degree(self.edge_matrix, len(self.edge_matrix[0]))
 
-        return d - self.edge_matrix
+        return D - self.edge_matrix
 
     def split_highest(self, communities: list([])):
         split = {'diff': -1, 'position': None}
@@ -152,7 +153,7 @@ class Communities:
 
     @staticmethod
     def make_degree(matrix, length):
-        # Calculate the out degree for each vertice.
+        # Calculate the out degree for each vertex
         degree = np.zeros((length, length))
         for i in range(length):
             degree[i][i] = np.sum(matrix[i])
@@ -166,12 +167,13 @@ class Communities:
 
         matrix = np.zeros((length, length))
 
-        # Make a matrix given the list, such that row 'i' in the matrix corresponds to the i'th element in the list.
+        # Make a matrix given the list, such that row 'i' in the matrix corresponds to the i'th element in the list
         for i in range(length):
             friends = self.friendships_lst[i][1]
             length_friends = len(friends)
             for j in range(length_friends):
                 if friends[j] not in index_dict:
+                    print('ree')
                     continue
 
                 index = index_dict[friends[j]]
@@ -190,10 +192,11 @@ class Communities:
         return index_dict
 
 
-c = Communities()
-# c.make_graph(c.friendships)
-c.spectral()
-# print(c.calc_num_edges())
+if __name__ == "__main__":
+    c = Communities()
+    # c.make_graph(c.friendships)
+    c.spectral()
+    # print(c.calc_num_edges())
 
 
-# print(c.split_highest(tmp))
+    # print(c.split_highest(tmp))

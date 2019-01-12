@@ -1,69 +1,72 @@
-import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
 
 from friendships import import_data
-import networkx as nx
+
 
 class Communities:
     def __init__(self):
         self.friendships, _ = import_data()
 
     def edge_to_remove(self, graph: nx.Graph):
-        # Calculate betweenness of edges.
+        # Calculate betweenness of edges
         betweenness = nx.edge_betweenness_centrality(graph)
 
-        # Sort by highest betweenness and get the highest elements edge.
-        highest = sorted(betweenness.items(), key=lambda k: k[1], reverse=True)[0][0]
+        # Sort by highest betweenness and get the highest element edge
+        # Intuitively, this edge has the highest amount of shortest paths from every point to every other point
+        highest = sorted(betweenness.items(), key=lambda k: k[1], reverse=True)
 
-        return highest
+        return highest[0][0]
 
     def girvan(self):
         # Get the graph
         graph = self.make_graph(self.friendships)
-
+        nx.draw(graph)
+        plt.show()
         # Get status of starting graph
         num_nodes = graph.number_of_nodes()
-        c = nx.connected_component_subgraphs(graph)
-        l = len(list(c))
-        prev_l = l
+        components = nx.connected_component_subgraphs(graph)
+        n_components = len(list(components))
+        prev_l = n_components
 
         graph_store = [graph.copy()]
 
         # Continue removing edges until all edges are removed or there are 15 communities.
-        # We stop at 15 as we expect between 2 and 10 communities.
-        while l != num_nodes and l < 15:
+        # We stop at 10 as we expect between 2 and 10 communities.
+        while n_components != num_nodes and n_components < 10:
             graph.remove_edge(*self.edge_to_remove(graph))
-            c = nx.connected_component_subgraphs(graph)
-            l = len(list(c))
+            components = nx.connected_component_subgraphs(graph)
+            n_components = len(list(components))
 
             # If edge removal resulted in more communities, add to store and update prev_l.
-            if l > prev_l:
+            if n_components > prev_l:
                 graph_store.append(graph.copy())
-                prev_l = l
+                prev_l = n_components
 
+        # Calculate modularity for all stored splits
         modularities = []
-
-        # Calculate modularity for all stored splits.
         for index in range(len(graph_store)):
             modularity = self.calculate_modularity(graph_store[index], graph_store[0])
-            modularities.append((modularity, index))        # Store modularity and index.
+            # Store modularity and index
+            modularities.append((modularity, index))
 
-        # Sort by highest modularity.
+        # Sort by highest modularity
         modularities.sort(key=lambda k: k[0], reverse=True)
 
-        # Returns the graph with the best modularity.
+        # Returns the graph with the best modularity
         return graph_store[modularities[0][1]]
 
-    def calculate_modularity(self, graph, original_graf):
-        _sum = 0
+    def calculate_modularity(self, graph, original_graph):
+        e_sum = 0
         num_edges = graph.number_of_edges()
 
-        # Calculate modularity by summing percent of edges in a module and percent of edges with one vertice in a module.
+        # Calculate modularity by summing percent of edges in a module and percent of edges with one vertex in a module
         for module in nx.connected_component_subgraphs(graph):
-            e = self.edges_in_module(module, original_graf.edges) / num_edges
-            a = self.edges_with_end_in_module(module, original_graf.edges) / num_edges
-            _sum += e - pow(a, 2)
+            edges_in_module = self.edges_in_module(module, original_graph.edges) / num_edges
+            end_in_module = self.edges_with_end_in_module(module, original_graph.edges) / num_edges
+            e_sum += edges_in_module - pow(end_in_module, 2)
 
-        return _sum
+        return e_sum
 
     @staticmethod
     def edges_in_module(graph: nx.Graph, edges):
@@ -96,3 +99,12 @@ class Communities:
             [graph.add_edge(user, friend) for friend in friends]
 
         return graph
+
+
+if __name__ == "__main__":
+    c = Communities()
+    result = c.girvan()
+
+    nx.draw(result)
+    plt.show()
+    print(result)

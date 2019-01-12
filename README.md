@@ -1,3 +1,8 @@
+# Friendship issues
+- One of our biggest issues were related to pre-processing
+- We were lowercasing all names, but it turns out that there are differnet people with the same name, although with
+different casing
+
 # Sentiment analysis
 - We noticed a significant different in the sizes of the positive and negative classes.
 This may have affected the results, but initially we disregarded the imbalance.
