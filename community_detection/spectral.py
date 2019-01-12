@@ -1,7 +1,13 @@
+import pickle
+
+import scipy
+
 import numpy as np
 from loguru import logger
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 
-from friendships import import_data
+from data_loader import import_data
 
 
 def make_laplacian(friendships, friend_idx_dict):
@@ -31,7 +37,6 @@ def make_adjacency_matrix(friendships, idx_friend_dict):
 
     for i in range(len(friendships)):
         friends = friendships[idx_friend_dict[i]]
-        print(friends)
         friends_idx = [friend_idx_dict[friend] for friend in friends]
 
         # For each friend, mark the corresponding cell with a 1
@@ -59,22 +64,35 @@ def get_idx_friend_dict(friendships):
 
 def run_spectral():
     friendships = get_friendships()
-    print('joey' in friendships)
-    friend_idx_dict = get_idx_friend_dict(friendships)
-    logger.info(friend_idx_dict)
+    idx_friend_dict = get_idx_friend_dict(friendships)
+    logger.info(idx_friend_dict)
 
     # Make degree matrix
-    L = make_laplacian(friendships, friend_idx_dict)
+    L = make_laplacian(friendships, idx_friend_dict)
 
     # Find eigenvalues and eigenvectors
-    w, v = np.linalg.eig(L)
-    u = v[:, 1]
+    # eigh returns eigenvalues and eigenvectors sorted by eigenvalue
+    # This way we can get the second eigenvector, e.g. the one with the second smallest value
+    eig_values, eig_vectors = scipy.linalg.eigh(L)
 
-    u_pairs = ((value, index) for index, value in enumerate(u))
-    test = np.array(sorted(u_pairs, key=lambda tup: tup[0]))
+    # The second eigenvector is currently a column, we need to transpose it to use it in k-means
+    second_vector = eig_vectors[:, 1]
 
-    print(L)
+    # Perform k-means on the eigenvector values
+    kmeans = KMeans(n_clusters=4).fit(second_vector.reshape(-1, 1))
+    person_cluster_dict = dict()
+    for idx, label in enumerate(kmeans.labels_):
+        logger.info(f'{idx_friend_dict[idx]} has label {label}')
+
+        person_cluster_dict[idx_friend_dict[idx]] = label
+
+    # Write communities to a file
+    pickle.dump(person_cluster_dict, open('communities.p', 'wb'))
 
 
 if __name__ == "__main__":
     run_spectral()
+
+    # plt.plot(sorted(res))
+    # plt.show()
+
