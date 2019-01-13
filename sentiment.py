@@ -236,15 +236,7 @@ def _calc_score(vector, _class, num_terms_pr_class, class_prob):
     return score
 
 
-    return sum * class_prob[_class]
-
-
-
-
-def preprocessing(text, language='english'):
-    """ Tokenizes a string, and stems the tokens
-
-def preprocess(text):
+def preprocessing(text):
     """ Tokenizes a string, and NOP the tokens
 
     Arguments:
