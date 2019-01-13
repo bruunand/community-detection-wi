@@ -1,3 +1,5 @@
+import pickle
+
 import networkx as nx
 import matplotlib.pyplot as plt
 from loguru import logger
@@ -32,8 +34,8 @@ class Communities:
         graph_store = [graph.copy()]
 
         # Continue removing edges until all edges are removed or there are 15 communities.
-        # We stop at 10 as we expect between 2 and 10 communities.
-        while n_components != num_nodes and n_components < 4:
+        # We stop at 5 as we expect between 2 and 10 communities.
+        while n_components != num_nodes and n_components < 7:
             graph.remove_edge(*self.edge_to_remove(graph))
             logger.info('Removing edge')
             components = nx.connected_component_subgraphs(graph)
@@ -115,6 +117,5 @@ if __name__ == "__main__":
     result = c.run_girvan()
 
     logger.info(f'{len(list(nx.connected_component_subgraphs(result)))} communities')
-    nx.draw(result)
-    plt.show()
+    pickle.dump(result, open('girvan.p', 'wb'))
     logger.info(result)

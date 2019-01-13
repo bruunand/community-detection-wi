@@ -67,11 +67,12 @@ def run_spectral():
     idx_friend_dict = get_idx_friend_dict(friendships)
     logger.info(idx_friend_dict)
 
-    # Make degree matrix
+    # Make Laplacian matrix
     L = make_laplacian(friendships, idx_friend_dict)
 
     # Find eigenvalues and eigenvectors
     # eigh returns eigenvalues and eigenvectors sorted by eigenvalue
+    # It requires a symmetric matrix but our Laplacian matrix happens to be one
     # This way we can get the second eigenvector, e.g. the one with the second smallest value
     eig_values, eig_vectors = scipy.linalg.eigh(L)
 
@@ -87,7 +88,7 @@ def run_spectral():
         person_cluster_dict[idx_friend_dict[idx]] = label
 
     # Write communities to a file
-    pickle.dump(person_cluster_dict, open('communities.p', 'wb'))
+    pickle.dump(person_cluster_dict, open('communities_test.p', 'wb'))
 
 
 if __name__ == "__main__":
