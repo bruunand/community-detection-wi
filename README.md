@@ -68,3 +68,22 @@ a negative sentiment
 - However, since we use random sub-sampling, we can use Monte Carlo cross-validation 
 - We ran random sub-sampling 5 times on the balanced dataset, where a random subset is used for training and the same
 subset is used for testing. We then took the mean of this result
+
+# Combining models
+- Our sentiment model has a higher chance of labelling the reviews positive than negative, as seen with the recall. 
+This means that we are more likely to say that a user would purchase fine food.
+- We assumed that 'kyle' did not have 10*10 times the influence when not in the same community, but only ten.
+- When compared to the results dataset, it was not that accurate. This might be the result of different 
+community splits but also the result of different classifications of reviews.
+
+# Evaluation
+- The graph in spectral clustering has quite clear divisions, meaning that our split is most likely correct.
+- The accuracy of our ml model is okay, though a bit unbalanced even with undersampling.
+- As both the communities and the model most likely do not make the exact same choices along the way, it is expected
+to give somewhat different results. 
+- The classifier is binary, that means that stronger opinions (1 or 5) do not have a say in the calculation. 
+Having multiple classes would probably giver better when combining the models, though the measures would probably also
+fall because of the increased complexity.
+- Content based recommender systems can be generated for a single user and therefore do not need a community.
+On the other hand, a content based recommender systems needs information from the user, like ratings, this is not 
+necessary for all users in this system, as we can draw information from a users friends. 
