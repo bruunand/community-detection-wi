@@ -22,6 +22,7 @@ def calculate_would_buy():
 
     logger.debug('Loaded data')
 
+    # Estimate the review label.
     for user, review in reviews.items():
         data = preprocessing(review)
         vector = _count_vectorizer(vocab, [data], vocab_index)[0]
@@ -45,14 +46,7 @@ def calculate_would_buy():
                 continue
 
             # A friend outside the community counts for 10 times and kyle for 10 times
-            if friend == 'kyle':
-                if friend_community != community:
-                    score += label * 100
-                    count += 100
-                else:
-                    score += label * 10
-                    count += 10
-            elif friend_community != community:
+            if friend_community != community or friend == 'kyle':
                 score += label * 10
                 count += 10
             else:
@@ -61,11 +55,29 @@ def calculate_would_buy():
 
         # If there are no friends with review, the answer will be no. Otherwise it is calculated.
         if count == 0:
+            logger.debug(user)
             would_purchase[user] = 'no'
         else:
             would_purchase[user] = 'yes' if score / count >= 0.5 else 'no'
 
     logger.debug('Calculated would purchase')
+
+    community_yes = {}
+    for user, answer in would_purchase.items():
+        community = communities[user]
+
+        if community not in community_yes:
+            community_yes[community] = {'yes_count': 0, 'size': 0}
+
+        community_yes[community]['size'] += 1
+
+        if answer == 'yes':
+            community_yes[community]['yes_count'] += 1
+
+    for community, answers in community_yes.items():
+        yes_count = answers['yes_count']
+        size = answers['size']
+        print(f'{community}: {yes_count/size}')
 
     with open('would_purchase.pkl', 'wb') as f:
         pickle.dump(would_purchase, f)
