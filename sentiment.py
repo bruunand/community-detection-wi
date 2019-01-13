@@ -1,4 +1,5 @@
 import io
+import math
 import random
 import re
 from collections import Counter
@@ -34,7 +35,7 @@ def load_sentiment_data(file_name):
     current_class = None
 
     with io.open(file_name, mode='r', encoding='utf-8') as file:
-        for line in file.readlines():
+        for line in file.readlines()[:1000000]:
             split = [x.strip() for x in line.split(':')]
 
             if split[0] == 'review/score':
@@ -146,28 +147,34 @@ def _naive_bayes():
     train_x, train_y = _undersample(train_x, train_y)
     test_x, test_y = _undersample(test_x, test_y)
 
-    train_x = [preprocess(text) for text in train_x]
-    test_x = [preprocess(text) for text in test_x]
+    train_x = [preprocessing(text) for text in train_x]
+    test_x = [preprocessing(text) for text in test_x]
+    logger.debug('Preprocessed training and test data')
 
+    # Create vocabulary
     vocab = _create_vocabulary(train_x)
 
+    # Generate vocabulary index.
     vocab_index = {}
     for i in range(len(vocab)):
         vocab_index[vocab[i]] = i
 
-    matrix = _count_vectorizer(vocab, train_x, vocab_index)
+    # Create term count vectors.
+    matrix = _count_vectorizer(vocab, test_x, vocab_index)
 
     class_prob = {}
     num_data = len(train_y)
 
-    # Calculate the probability of a class occurring
+    # Calculate the probability of a class.
     for _class in classes:
         count = train_y.count(_class)
-        class_prob[_class] = count / num_data
+        class_prob[_class] = math.log(count / num_data)  # Use log such that no underflow occur.
 
     term_freq_matrix = _count_term_occurrence(train_x, train_y, classes, vocab_index)
 
-    num_word_pr_class = np.sum(term_freq_matrix, axis=0)
+    num_terms_pr_class = np.sum(term_freq_matrix, axis=0)
+
+    score = _calc_score(matrix[2], term_freq_matrix, num_terms_pr_class, class_prob)
 
     pass
 
@@ -213,9 +220,29 @@ def _count_term_occurrence(data, labels, classes, vocab_index: dict):
     return matrix
 
 
-def _calc_score(matrix, term_freq_matrix, num_word_pr_class):
-    pass
+def _calc_score(vector, _class, num_terms_pr_class, class_prob):
+    score = np.zeros((len(num_terms_pr_class)))
+    for term_index in range(len(vector)):
+        term_count = vector[term_index]
+        for class_index in range(len(class_prob)):
+            if term_count == 0:
+                continue
+            else:
+                score[class_index] += math.log((term_count + 1) / (num_terms_pr_class[class_index] + len(vector)))
 
+    for class_index in range(len(num_terms_pr_class)):
+        score[class_index] += class_prob[class_index]
+
+    return score
+
+
+    return sum * class_prob[_class]
+
+
+
+
+def preprocessing(text, language='english'):
+    """ Tokenizes a string, and stems the tokens
 
 def preprocess(text):
     """ Tokenizes a string, and NOP the tokens
