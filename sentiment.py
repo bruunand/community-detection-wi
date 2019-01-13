@@ -162,9 +162,6 @@ def _naive_bayes():
 
     logger.info('Created vocabulary')
 
-    # Create term count vectors.
-    matrix = _count_vectorizer(vocab, test_x, vocab_index)
-
     class_prob = {}
     num_data = len(train_y)
 
@@ -181,6 +178,9 @@ def _naive_bayes():
     # Get the number of terms in each class.
     num_terms_pr_class = np.sum(term_freq_matrix, axis=0)
 
+    # Create term count vectors.
+    matrix = _count_vectorizer(vocab, test_x, vocab_index)
+
     # Predict the class of test labels
     predictions = []
     for i in range(len(matrix)):
@@ -190,6 +190,12 @@ def _naive_bayes():
 
     acc, precision_pos, precision_neg, recall_pos, recall_neg = _get_measures(predictions, test_y)
 
+    # Save model parts
+    with open('model.pkl', 'wb') as f:
+        pickle.dump({'vocabulary': vocab, 'vocabulary_index': vocab_index, 'term_frequency_per_class': term_freq_matrix,
+                     'terms_per_class': num_terms_pr_class, 'class_probability': class_prob}, f)
+
+    # Save measures
     with open("results_no_under.pkl", 'wb') as f:
         pickle.dump({'accuracy': acc, 'precision_pos': precision_pos, 'recall_pos': recall_pos,
                      'precision_neg': precision_neg, 'recall_neg': recall_neg}, f)
