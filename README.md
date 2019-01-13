@@ -42,7 +42,7 @@ negation has on the dataset
 ## Stemming
 - We expect a slight decrease in accuracy when using stemming, as we risk losing the meaning of some word    
 - Actually, stemming did not change much and its slightly change in accuracy may be accredited to using random
-sub-sampling. Ideally, we would 
+undersampling. Ideally, we would 
 
 ### Trial #3 scores (balanced dataset, stemming, 86% accuracy)
         precision    recall
@@ -64,7 +64,10 @@ a negative sentiment
     pos       0.80      0.87   
  
 ## Cross-validation
-- Due to the time overhead, we did not have time to implement k-fold cross-validation
-- However, since we use random sub-sampling, we can use Monte Carlo cross-validation 
-- We ran random sub-sampling 5 times on the balanced dataset, where a random subset is used for training and the same
-subset is used for testing. We then took the mean of this result
+- Due to the time overhead, we did not have time to implement k-fold cross-validation. However, since we use random
+undersampling, we can use Monte Carlo cross-validation 
+- We ran random undersampling 5 times on the balanced dataset, where a random subset is used for training and the same
+subset is used for testing
+- The variances in the resulting metrics were quite low. In particular, the variance on the accuracy metric was
+**0.03**, whereas the mean value of that metric was **86.8%**
+
