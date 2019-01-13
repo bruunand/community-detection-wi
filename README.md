@@ -63,5 +63,8 @@ a negative sentiment
     neg       0.86      0.79
     pos       0.80      0.87   
  
-## Cross validation
-- We 
+## Cross-validation
+- Due to the time overhead, we did not have time to implement k-fold cross-validation
+- However, since we use random sub-sampling, we can use Monte Carlo cross-validation 
+- We ran random sub-sampling 5 times on the balanced dataset, where a random subset is used for training and the same
+subset is used for testing. We then took the mean of this result

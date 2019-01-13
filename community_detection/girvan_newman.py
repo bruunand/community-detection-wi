@@ -35,7 +35,7 @@ class Communities:
 
         # Continue removing edges until all edges are removed or there are 15 communities.
         # We stop at 5 as we expect between 2 and 10 communities.
-        while n_components != num_nodes and n_components < 7:
+        while n_components != num_nodes and n_components < 4:
             graph.remove_edge(*self.edge_to_remove(graph))
             logger.info('Removing edge')
             components = nx.connected_component_subgraphs(graph)

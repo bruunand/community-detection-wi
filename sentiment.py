@@ -52,8 +52,9 @@ def shuffle_lists(*ls):
     return zip(*zipped)
 
 
-def _undersample(x, y, random_state=0):
-    random.seed = random_state
+def _undersample(x, y, random_state=None):
+    if random_state:
+        random.seed = random_state
 
     x, y = shuffle_lists(x, y)
 
@@ -284,11 +285,6 @@ def preprocessing(text):
     Returns:
         list -- A list containing stemmed tokens.
     """
-    punctuation = re.compile('[.:;!?]')
-    negatives = {'dont', 'never', 'nothing', 'nowhere', 'noone', 'none', 'not', 'no', 'hasnt', 'hadnt', 'cant',
-                 'couldnt', 'shouldnt', 'wont', 'wouldnt', 'dont', 'doesnt', 'didnt', 'isnt', 'arent',
-                 'aint'}
-
     # Convert document to lowercase and replace apostrophes
     # Apostrophes are removed because Treebank style tokenization splits them from their word
     text = text.lower().replace('\'', '')
@@ -297,29 +293,7 @@ def preprocessing(text):
     soup = bs4.BeautifulSoup(text, 'html.parser')
     text = soup.text
 
-    tokenized = word_tokenize(text)
-
-    # Add negation prepends
-    tokens_with_negation = []
-    negate = False
-    for token in tokenized:
-        # Continue if stop word
-        if token in stop_words:
-            if punctuation.findall(token):
-                negate = False
-
-            continue
-
-        # Check if token contains alphanumerical characters
-        if not re.match(r'\w+', token):
-            continue
-
-        tokens_with_negation.append(token if not negate else f'NEG_{token}')
-
-        if token in negatives:
-            negate = True
-
-    return tokens_with_negation
+    return [token for token in word_tokenize(text) if re.match(r'\w+', token) and token not in stop_words]
 
 
 if __name__ == "__main__":
