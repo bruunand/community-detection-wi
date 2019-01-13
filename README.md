@@ -22,64 +22,49 @@ This may have affected the results, but initially we disregarded the imbalance.
 Being simple, we can train it quickly and try different approaches. We can also perform cross validation more easily.
 
 ## Initial results
-- Our initial results showed a **90.52%** accuracy, however with a precision of **72%** on the positive dataset and
-**94%** on the positive class. Due to the imbalance in our dataset, we decided to use undersampling.
-- After balancing the dataset, we got an accuracy of **86%**. However, there are still improvements to be made.
-The model currently uses a count vectorizer, which counts how frequently words occur in a document. However, in large
-documents common words will appear many times. To downscale the importance of these words, we tried downscaling them
-with TF.
+- Our initial results showed a **91.2%** accuracy, however with a precision of **93.23%** on the positive class and
+**78.49%** on the positive class. Due to the imbalance in our dataset, we decided to use undersampling
+- After balancing the dataset, we got an accuracy of **87%**. However, we still need to test which effect stemming and
+negation has on the dataset
 
+### Trial #1 scores (imbalanced dataset, 91% accuracy)
+        precision    recall
+    
+    neg       0.78      0.64
+    pos       0.93      0.96
 
-### Trial #1 scores (imbalanced dataset)
-                  precision    recall  f1-score   support
+### Trial #2 scores (balanced dataset, 87% accuracy)
+        precision    recall
     
-               0       0.72      0.71      0.71      1522
-               1       0.94      0.94      0.94      7616
+    neg       0.89      0.85
+    pos       0.86      0.89
     
-       micro avg       0.91      0.91      0.91      9138
-       macro avg       0.83      0.83      0.83      9138
-    weighted avg       0.90      0.91      0.91      9138
-    
-## Trial #2 scores (balanced dataset)
-                   precision    recall  f1-score   support
-    
-               0       0.87      0.84      0.86      1522
-               1       0.84      0.88      0.86      1522
-    
-       micro avg       0.86      0.86      0.86      3044
-       macro avg       0.86      0.86      0.86      3044
-    weighted avg       0.86      0.86      0.86      3044
+## Stemming
+- We expect a slight decrease in accuracy when using stemming, as we risk losing the meaning of some word    
+- Actually, stemming did not change much and its slightly change in accuracy may be accredited to using random
+sub-sampling. Ideally, we would 
 
-## TF model
-- After including TF in the classification pipe, we got an accuracy of **87%**, not much better than without the
-downscaling. Finally, we wanted to see if including negation of word could improve our results.
+### Trial #3 scores (balanced dataset, stemming, 86% accuracy)
+        precision    recall
+    
+    neg       0.88      0.84
+    pos       0.85      0.88      
 
-## Trial #3 (TF)
-                  precision    recall  f1-score   support
-    
-               0       0.87      0.87      0.87      1522
-               1       0.87      0.87      0.87      1522
-    
-       micro avg       0.87      0.87      0.87      3044
-       macro avg       0.87      0.87      0.87      3044
-    weighted avg       0.87      0.87      0.87      3044
-    
-## Negation (with TF)
-- In our negation implementation, we prepend ***_neg*** to the word following a negation word.
-- Example input/output:
-    - Input: I am not happy today.
-    - Output: I am not neg_happy neg_today.
-- It seemingly made no difference as the resulting accuracy was **86%**. 
+## Negation
+- We expect an increase in accuracy when using negation
+- For every negative word, we prepend each following word with *NEG_* until we encounter punctuation
+- To our surprise, the accuracy actually decreased. The precision on the negative class is comparatively higher than the
+precision on the negative class, which intuitively makes sense as the model might associate certain *NEG_* words with
+a negative sentiment
 
-## Trial #4 (Negation)
-                   precision    recall  f1-score   support
+## Trial #4 scores (balanced dataset, negation, 83% accuracy)
+        precision    recall
     
-               0       0.86      0.86      0.86      1522
-               1       0.86      0.86      0.86      1522
-    
-       micro avg       0.86      0.86      0.86      3044
-       macro avg       0.86      0.86      0.86      3044
-    weighted avg       0.86      0.86      0.86      3044
-    
-## Cross validation
-- Should be done in the future.
+    neg       0.86      0.79
+    pos       0.80      0.87   
+ 
+## Cross-validation
+- Due to the time overhead, we did not have time to implement k-fold cross-validation
+- However, since we use random sub-sampling, we can use Monte Carlo cross-validation 
+- We ran random sub-sampling 5 times on the balanced dataset, where a random subset is used for training and the same
+subset is used for testing. We then took the mean of this result
