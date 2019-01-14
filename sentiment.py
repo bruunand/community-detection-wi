@@ -269,7 +269,7 @@ def predict(vector, term_freq_matrix, terms_per_class, class_prob):
         for class_index in range(class_instances):
             # Skip term if no occurrences in vector
             if vector[term_index] != 0:
-            # Uses Laplace smoothing to ensure no log of 0
+                # Uses Laplace smoothing to ensure no log of 0
                 class_scores[class_index] += math.log((term_freq_matrix[term_index][class_index] + 1) /
                                                   (terms_per_class[class_index] + vector_length))
 

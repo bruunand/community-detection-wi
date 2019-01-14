@@ -6,7 +6,7 @@ calculation
 ## Girvan-Newman
 - Detected the same number of clusters as spectral clustering approach
 - Based on random observations, cluster appeared to be the same as produced by spectral clustering
-- However, it took **3 hours** to find these clusters
+- However, it took **3 hours** to find these clusters. After removal of edge *e*, we calculate all shortest paths again, to find the betweenness centrality. This is not necessary, as we only have to update the shortest paths that used *e*. 
 
 ## Spectral clustering
 - In order to detect the amount of clusters, we plotted the values of the second eigenvector
