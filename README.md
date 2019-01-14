@@ -71,10 +71,10 @@ a negative sentiment
 ## Cross-validation
 - Due to the time overhead, we did not have time to implement k-fold cross-validation. However, since we use random
 undersampling, we can use Monte Carlo cross-validation 
-- We ran random undersampling 5 times on the balanced dataset, where a random subset is used for training and the same
-subset is used for testing
-- The variances in the resulting metrics were quite low. In particular, the variance on the accuracy metric was
-**0.03**, whereas the mean value of that metric was **86.8%**
+- We ran random undersampling 5 times on the datasets (except the unbalanced one), where a random subset is used for
+training and the same subset is used for testing
+- The variances in the resulting metrics were quite low. In particular, the variance on the accuracy metric in the last
+ dataset was **0.03**, whereas the mean value of that metric was **86.8%**
 
 # Combining models
 - Our sentiment model has a higher chance of labelling the reviews positive than negative, as seen with the recall.

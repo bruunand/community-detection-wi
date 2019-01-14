@@ -3,7 +3,7 @@ import pickle
 from loguru import logger
 
 from data_loader import import_data
-from sentiment import _predict, _count_vectorizer, preprocessing
+from sentiment import predict, count_vectorizer, preprocessing
 
 
 def calculate_would_buy():
@@ -25,8 +25,8 @@ def calculate_would_buy():
     # Estimate the review label.
     for user, review in reviews.items():
         data = preprocessing(review)
-        vector = _count_vectorizer(vocab, [data], vocab_index)[0]
-        reviews[user] = _predict(vector, term_freq_matrix, num_terms_pr_class, class_prob)
+        vector = count_vectorizer(vocab, [data], vocab_index)[0]
+        reviews[user] = predict(vector, term_freq_matrix, num_terms_pr_class, class_prob)
 
     logger.debug('Predicted reviews')
 
