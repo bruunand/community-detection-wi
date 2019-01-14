@@ -117,5 +117,5 @@ if __name__ == "__main__":
     result = c.run_girvan()
 
     logger.info(f'{len(list(nx.connected_component_subgraphs(result)))} communities')
-    pickle.dump(result, open('girvan.p', 'wb'))
+    pickle.dump(result, open('girvan.pkl', 'wb'))
     logger.info(result)

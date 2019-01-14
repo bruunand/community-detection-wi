@@ -3,6 +3,11 @@
 - The Girvan Newman algorithm was simply too slow. In practice, it took several minutes for just one betweenness
 calculation
 
+## Girvan-Newman
+- Detected the same number of clusters as spectral clustering approach
+- Based on random observations, cluster appeared to be the same as produced by spectral clustering
+- However, it took **3 hours** to find these clusters
+
 ## Spectral clustering
 - In order to detect the amount of clusters, we plotted the values of the second eigenvector
 - This clearly showed that there were 4 communities, some severally bigger than others
