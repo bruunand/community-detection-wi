@@ -131,10 +131,10 @@ def naive_bayes():
 
     # Calculate the probability of a class
     for cls in classes:
-        count = train_y.count(cls)
+        class_instances = train_y.count(cls)
         # Log space probability used to prevent underflow
         # Laplace smoothing
-        class_prob[cls] = math.log((count + 1) / (num_data + len(classes)))
+        class_prob[cls] = math.log((class_instances + 1) / (num_data + len(classes)))
     logger.debug('Calculated class probabilities')
 
     # Count the number of occurrences for each term over all reviews
@@ -148,9 +148,6 @@ def naive_bayes():
     # Calculate the probability of a term occurring given a class.
     term_probability_matrix = calculate_term_probabilities(term_freq_matrix, terms_per_class, len(vocabulary))
     logger.debug('Calculated term probability matrix')
-
-    # Create term count vectors
-    matrix = count_vectorizer(vocabulary, test_x, term_to_index)
 
     # Predict the class of test labels
     predictions = []
@@ -181,9 +178,10 @@ def calculate_term_probabilities(term_freq_matrix, terms_per_class, vector_lengt
     for term_index in range(len(term_freq_matrix)):
         for class_index in range(len(terms_per_class)):
             # Uses Laplace smoothing to ensure no log of 0
-            term_probability_matrix[term_index][class_index] = math.log((term_freq_matrix[term_index][class_index] + 1)
-                                                                        / (terms_per_class[class_index]
-                                                                           + vector_length))
+            term_freq_in_class = term_freq_matrix[term_index][class_index]
+
+            term_probability_matrix[term_index][class_index] = math.log((term_freq_in_class + 1) /
+                                                                        (terms_per_class[class_index] + vector_length))
 
     return term_probability_matrix
 
@@ -239,23 +237,6 @@ def create_vocabulary(reviews):
         vocab.update([term for term in review])
 
     return sorted(list(vocab))
-
-
-def count_vectorizer(vocab, data, term_to_index):
-    length = len(vocab)
-
-    matrix = []
-
-    # For each review count the term occurrence frequency
-    for review in data:
-        count_map = np.zeros((length,))
-        for term in review:
-            if term in term_to_index:
-                count_map[term_to_index[term]] += 1
-
-        matrix.append(count_map)
-
-    return matrix
 
 
 def count_term_occurrence(data, labels, classes, vocab_index: dict):
