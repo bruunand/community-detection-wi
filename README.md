@@ -22,6 +22,8 @@ modularity
 ![Plot of the values of the second eigenvector](community_detection/eigenvector_values.png "Eigenvector value plot")
 - Given our knowledge that **k=4**, we ran the k-means clustering algorithm on the eigenvector in order to assign to
 each person a cluster
+- We also tried plotting the eigenvalues 
+![Plot of eigenvalues](community_detection/eigenvalues.png "Eigenvalue plot")
 
 ## Friendship issues
 - One of our biggest issues were related to pre-processing

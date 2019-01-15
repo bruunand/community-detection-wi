@@ -92,13 +92,14 @@ def run_spectral():
     # Write communities to a file
     pickle.dump(person_cluster_dict, open('communities_test.p', 'wb'))
 
-    return relevant_vectors
+    return eig_values, relevant_vectors
 
 
 if __name__ == "__main__":
-    vectors = run_spectral()
+    eig_values, vectors = run_spectral()
 
-    plt.plot(sorted(vectors[:, 7]))
+    sorted_eig = sorted(v for v in eig_values)
+    plt.plot(sorted_eig)
     plt.show()
 
 

@@ -61,11 +61,13 @@ def calculate_answer(communities, friendships, reviews):
                     continue
 
                 # A friend outside the community counts for 10 times and kyle for 10 times
-                weight = 1 if label else 0
-                if friend_community != community or friend == 'kyle':
-                    score += weight * 10
-                else:
-                    score += weight
+                weight = 1 if label else -1
+                if friend == 'kyle':
+                    weight *= 10
+                if friend_community != community:
+                    weight *= 10
+
+                score += weight
 
         would_purchase[user] = 'yes' if score > 0 else 'no'
 
