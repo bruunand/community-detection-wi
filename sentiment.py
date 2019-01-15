@@ -10,6 +10,7 @@ import numpy as np
 from loguru import logger
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+from stemming.porter2 import stem
 
 stop_words = set(stopwords.words('english'))
 
@@ -159,8 +160,9 @@ def naive_bayes():
 
     # Save model parts
     with open('model.pkl', 'wb') as f:
-        pickle.dump({'vocabulary': vocabulary, 'vocabulary_index': term_to_index, 'term_frequency_per_class': term_freq_matrix,
-                     'terms_per_class': terms_per_class, 'class_probability': class_prob}, f)
+        pickle.dump(
+            {'vocabulary': vocabulary, 'vocabulary_index': term_to_index, 'term_frequency_per_class': term_freq_matrix,
+             'terms_per_class': terms_per_class, 'class_probability': class_prob}, f)
 
     # Save measures
     with open("results_no_under.pkl", 'wb') as f:
@@ -271,7 +273,7 @@ def predict(vector, term_freq_matrix, terms_per_class, class_prob):
             if vector[term_index] != 0:
                 # Uses Laplace smoothing to ensure no log of 0
                 class_scores[class_index] += math.log((term_freq_matrix[term_index][class_index] + 1) /
-                                                  (terms_per_class[class_index] + vector_length))
+                                                      (terms_per_class[class_index] + vector_length))
 
     # Add the class probability
     for class_index in range(len(terms_per_class)):
@@ -300,7 +302,7 @@ def preprocessing(text):
     soup = bs4.BeautifulSoup(text, 'html.parser')
     text = soup.text
 
-    return [token for token in word_tokenize(text) if re.match(r'\w+', token) and token not in stop_words]
+    return [stem(token) for token in word_tokenize(text) if re.match(r'\w+', token) and token not in stop_words]
 
 
 if __name__ == "__main__":

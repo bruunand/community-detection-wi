@@ -86,7 +86,7 @@ This is why the majority fractions of our communities wish to buy fine foods
 community splits but also the result of different classifications of reviews
 
 # Evaluation
-- The graph in spectral clustering has quite clear divisions, meaning that our split is most likely correct.
+- The graph in spectral clustering has quite clear divisions, meaning that our split is most likely correct
 - The accuracy of our ml model is okay, though a bit unbalanced even with undersampling
 - As both the communities and the model most likely do not make the exact same choices along the way, it is expected
 to give somewhat different results
