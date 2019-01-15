@@ -47,7 +47,7 @@ def make_adjacency_matrix(friendships, idx_friend_dict):
 
 
 def get_friendships():
-    friendships, _ = friendships, _ = import_data()
+    friendships, _ = import_data('../data.txt')
     return friendships
 
 
@@ -66,6 +66,7 @@ def run_spectral():
     friendships = get_friendships()
     idx_friend_dict = get_idx_friend_dict(friendships)
     logger.info(idx_friend_dict)
+    num_clusters = 4
 
     # Make Laplacian matrix
     L = make_laplacian(friendships, idx_friend_dict)
@@ -76,11 +77,13 @@ def run_spectral():
     # This way we can get the second eigenvector, e.g. the one with the second smallest value
     eig_values, eig_vectors = scipy.linalg.eigh(L)
 
+    # We get the first k eigen vectors and remove the first
     # The second eigenvector is currently a column, we need to transpose it to use it in k-means
-    second_vector = eig_vectors[:, 1]
+    relevant_vectors = eig_vectors[:, 1:num_clusters]
+    relevant_vectors = relevant_vectors.reshape(-1, num_clusters - 1)
 
     # Perform k-means on the eigenvector values
-    kmeans = KMeans(n_clusters=4).fit(second_vector.reshape(-1, 1))
+    kmeans = KMeans(n_clusters=num_clusters).fit(relevant_vectors)
     person_cluster_dict = dict()
     for idx, label in enumerate(kmeans.labels_):
         logger.info(f'{idx_friend_dict[idx]} has label {label}')
