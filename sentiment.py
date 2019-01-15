@@ -145,13 +145,17 @@ def naive_bayes():
     # Get the number of terms in each class
     terms_per_class = np.sum(term_freq_matrix, axis=0)
 
+    # Calculate the probability of a term occurring given a class.
+    term_probability_matrix = calculate_term_probabilities(term_freq_matrix, terms_per_class, len(vocabulary))
+    logger.debug('Calculated term probability matrix')
+
     # Create term count vectors
     matrix = count_vectorizer(vocabulary, test_x, term_to_index)
 
     # Predict the class of test labels
     predictions = []
-    for i in range(len(matrix)):
-        predictions.append(predict(matrix[i], term_freq_matrix, terms_per_class, class_prob))
+    for text in test_x:
+        predictions.append(predict(text, term_to_index, term_probability_matrix, class_prob))
 
     logger.debug('Predicted classes on test set')
 
@@ -161,13 +165,27 @@ def naive_bayes():
     # Save model parts
     with open('model.pkl', 'wb') as f:
         pickle.dump(
-            {'vocabulary': vocabulary, 'vocabulary_index': term_to_index, 'term_frequency_per_class': term_freq_matrix,
-             'terms_per_class': terms_per_class, 'class_probability': class_prob}, f)
+            {'vocabulary': vocabulary, 'vocabulary_index': term_to_index,
+             'term_probability_matrix': term_probability_matrix, 'class_probability': class_prob}, f)
 
     # Save measures
     with open("results_no_under.pkl", 'wb') as f:
         pickle.dump({'accuracy': acc, 'precision_pos': precision_pos, 'recall_pos': recall_pos,
                      'precision_neg': precision_neg, 'recall_neg': recall_neg}, f)
+
+
+def calculate_term_probabilities(term_freq_matrix, terms_per_class, vector_length):
+    term_probability_matrix = np.zeros((len(term_freq_matrix), len(terms_per_class)))
+
+    # Calculate the term probability for each term for a class.
+    for term_index in range(len(term_freq_matrix)):
+        for class_index in range(len(terms_per_class)):
+            # Uses Laplace smoothing to ensure no log of 0
+            term_probability_matrix[term_index][class_index] = math.log((term_freq_matrix[term_index][class_index] + 1)
+                                                                        / (terms_per_class[class_index]
+                                                                           + vector_length))
+
+    return term_probability_matrix
 
 
 def get_measures(predictions, labels):
@@ -258,25 +276,23 @@ def count_term_occurrence(data, labels, classes, vocab_index: dict):
     return matrix
 
 
-def predict(vector, term_freq_matrix, terms_per_class, class_prob):
-    class_scores = np.zeros((len(terms_per_class)))
-    class_instances = len(terms_per_class)
-
-    # Vocabulary size
-    vector_length = len(vector)
-
+def predict(text, term_to_index, term_probability_matrix, class_prob):
+    class_scores = np.zeros((len(class_prob)))
+    class_instances = len(class_prob)
     # For each term calculate the probability using log. Log is used to insure no underflow as
     # the standard formula Pi(p(x_i | c)) would be a small number
-    for term_index in range(vector_length):
+    for term in set(text):
+        if term in term_to_index:
+            term_index = term_to_index[term]
+        else:
+            continue
+
         for class_index in range(class_instances):
             # Skip term if no occurrences in vector
-            if vector[term_index] != 0:
-                # Uses Laplace smoothing to ensure no log of 0
-                class_scores[class_index] += math.log((term_freq_matrix[term_index][class_index] + 1) /
-                                                      (terms_per_class[class_index] + vector_length))
+            class_scores[class_index] += term_probability_matrix[term_index][class_index]
 
     # Add the class probability
-    for class_index in range(len(terms_per_class)):
+    for class_index in range(len(class_prob)):
         class_scores[class_index] += class_prob[class_index]
 
     class_scores = list(class_scores)
