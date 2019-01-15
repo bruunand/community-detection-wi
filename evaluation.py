@@ -31,24 +31,6 @@ def calculate_would_buy():
     would_purchase = calculate_answer(communities, friendships, reviews)
     logger.debug('Calculated would purchase')
 
-    for user, label in reviews.items():
-        if user in scores:
-            _class = class_from_score(scores[user])
-            if _class and label == 0 and _class == 0:
-                print(user)
-    cpos = 0
-    cneg = 0
-    count = 0
-    for user, label in scores.items():
-        label = class_from_score(label)
-        if label is not None:
-            if label == 1:
-                cpos += 1
-            else:
-                cneg += 1
-
-    print(f'{cpos}, {cneg}, {count}')
-
     print_cluster_yes_percentage(communities, would_purchase)
     print_cluster_accuracy(communities, clusters)
     print_review_accuracy(reviews, scores)
@@ -66,8 +48,6 @@ def calculate_answer(communities, friendships, reviews):
     would_purchase = {}
 
     # Calculate for each user if they would purchase a fine food
-    count = 0
-    count2 = 0
     for user, community in communities.items():
 
         score = 0
@@ -94,9 +74,6 @@ def calculate_answer(communities, friendships, reviews):
                     score += weight
 
         would_purchase[user] = 'yes' if score > 0 else 'no'
-
-    print(count)
-    print(count2)
 
     return would_purchase
 
@@ -132,7 +109,7 @@ def print_review_precision(our_guesses, dologs_guesses, label):
                 if guess == _class:
                     true_positive += 1
 
-    print(f'Review precision: {true_positive / positive}')
+    print(f'Review precision for {label}: {true_positive / positive}')
 
 
 def print_review_recall(our_guesses, dologs_guesses, label):
@@ -149,7 +126,7 @@ def print_review_recall(our_guesses, dologs_guesses, label):
                 if guess == _class:
                     true_positive += 1
 
-    print(f'Review recall: {true_positive / all_positive}')
+    print(f'Review recall for {label}: {true_positive / all_positive}')
 
 
 def print_purchase_accuracy(our_guesses, dologs_guesses):

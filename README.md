@@ -43,13 +43,13 @@ Being simple, we can train it quickly and try different approaches. We can also 
 negation has on the dataset
 
 ### Trial #1 scores (imbalanced dataset, 91% accuracy)
-        precision    recall
+         precision    recall
     
     neg       0.78      0.64
     pos       0.93      0.96
 
 ### Trial #2 scores (balanced dataset, 87% accuracy)
-        precision    recall
+         precision    recall
     
     neg       0.89      0.85
     pos       0.86      0.89
@@ -60,7 +60,7 @@ negation has on the dataset
 undersampling. Ideally, we would 
 
 ### Trial #3 scores (balanced dataset, stemming, 86% accuracy)
-        precision    recall
+         precision    recall
     
     neg       0.88      0.84
     pos       0.85      0.88      
@@ -73,7 +73,7 @@ precision on the negative class, which intuitively makes sense as the model migh
 a negative sentiment
 
 ## Trial #4 scores (balanced dataset, negation, 83% accuracy)
-        precision    recall
+         precision    recall
     
     neg       0.86      0.79
     pos       0.80      0.87   
@@ -87,17 +87,39 @@ training and the same subset is used for testing
  dataset was **0.03**, whereas the mean value of that metric was **86.8%**
 
 # Combining models
-- Our sentiment model has a higher chance of labelling the reviews positive than negative, as seen with the recall.
+- Our sentiment model has a higher chance of labelling the reviews positive than negative, as seen with the recall when
+testing against our testset
 This means that we are more likely to say that a user would purchase fine food. However, the precision on the positive
 class is lower than that of the negative class, so in many cases where we guess positive, the ground truth is negative.
 This is why the majority fractions of our communities wish to buy fine foods
+- We tested the accuracy, precision and recall against the results.txt that were give (seen below). The results supports our theory,
+that is is better at predicting positive than negative reviews. It is actually quite bad at labelling the negative 
+reviews
+
+|     |  Precision |  Recall |
+|-----|-----------:|--------:|
+| Pos |      0.981 |   0.851 |
+| Neg |      0.488 |   0.893 |
+
+- We correctly labels almost all positive reviews but fail to classify half of the negative reviews
+- There is therefore a very high chance of us labelling the review positive. When aggregating the opinions of multiple 
+friends it is almost certain to be positive. The table below shows the fraction of the community that would by fine 
+foods
 - We assumed that 'kyle' did not have 10*10 times the influence when not in the same community, but only ten
 - When compared to the results dataset, it was not that accurate. This might be the result of different 
 community splits but also the result of different classifications of reviews
 
+|            | Would by fine food |
+|------------|-------------------:|
+|Community 0 |              0.763 |
+|Community 1 |              0.876 |
+|Community 2 |              0.837 |
+|Community 3 |              0.955 |
+
 # Evaluation
 - The graph in spectral clustering has quite clear divisions, meaning that our split is most likely correct
-- The accuracy of our ml model is okay, though a bit unbalanced even with undersampling
+- The accuracy of our ml model is okay, but is really unbalanced, biased towards positive posts. We therefore do not 
+classify negative reviews correctly, most communities are therefore willing to buy fine foods
 - As both the communities and the model most likely do not make the exact same choices along the way, it is expected
 to give somewhat different results
 - The classifier is binary, that means that stronger opinions (1 or 5) do not have a say in the calculation. 
