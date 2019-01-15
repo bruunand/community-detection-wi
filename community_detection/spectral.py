@@ -1,10 +1,9 @@
 import pickle
 
-import scipy
-
-import numpy as np
-from loguru import logger
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy
+from loguru import logger
 from sklearn.cluster import KMeans
 
 from data_loader import import_data
@@ -66,14 +65,14 @@ def run_spectral():
     friendships = get_friendships()
     idx_friend_dict = get_idx_friend_dict(friendships)
     logger.info(idx_friend_dict)
-    num_clusters = 5
+    num_clusters = 4
 
     # Make Laplacian matrix
     L = make_laplacian(friendships, idx_friend_dict)
 
     # Find eigenvalues and eigenvectors
     # eigh returns eigenvalues and eigenvectors sorted by eigenvalue
-    # It requires a symmetric matrix but our Laplacian matrix happens to be one
+    # It requires a symmetric matrix but our Laplacian matrix is one
     # This way we can get the second eigenvector, e.g. the one with the second smallest value
     eig_values, eig_vectors = scipy.linalg.eigh(L)
 
@@ -97,14 +96,9 @@ def run_spectral():
 
 
 if __name__ == "__main__":
-    res = run_spectral()
+    vectors = run_spectral()
 
-    plt.plot(sorted(res[:, 1]))
+    plt.plot(sorted(vectors[:, 7]))
     plt.show()
 
-    plt.plot(sorted(res[:, 2]))
-    plt.show()
-
-    plt.plot(sorted(res[:, 3]))
-    plt.show()
 
