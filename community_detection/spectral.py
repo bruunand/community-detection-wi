@@ -47,7 +47,7 @@ def make_adjacency_matrix(friendships, idx_friend_dict):
 
 
 def get_friendships():
-    friendships, _ = import_data('../data.txt')
+    friendships, _ = import_data('data.txt')
     return friendships
 
 
@@ -66,7 +66,7 @@ def run_spectral():
     friendships = get_friendships()
     idx_friend_dict = get_idx_friend_dict(friendships)
     logger.info(idx_friend_dict)
-    num_clusters = 4
+    num_clusters = 5
 
     # Make Laplacian matrix
     L = make_laplacian(friendships, idx_friend_dict)
@@ -93,10 +93,18 @@ def run_spectral():
     # Write communities to a file
     pickle.dump(person_cluster_dict, open('communities_test.p', 'wb'))
 
+    return relevant_vectors
+
 
 if __name__ == "__main__":
-    run_spectral()
+    res = run_spectral()
 
-    # plt.plot(sorted(res))
-    # plt.show()
+    plt.plot(sorted(res[:, 1]))
+    plt.show()
+
+    plt.plot(sorted(res[:, 2]))
+    plt.show()
+
+    plt.plot(sorted(res[:, 3]))
+    plt.show()
 

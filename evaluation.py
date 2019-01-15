@@ -34,10 +34,10 @@ def calculate_would_buy():
     would_purchase = calculate_answer(communities, friendships, reviews)
     logger.debug('Calculated would purchase')
 
-    _print_cluster_yes_percentage(communities, would_purchase)
-    _print_cluster_acccuracy(communities, clusters)
-    _print_review_accuracy(reviews, scores)
-    _print_purchase_accuracy(would_purchase, purchased)
+    print_cluster_yes_percentage(communities, would_purchase)
+    print_cluster_accuracy(communities, clusters)
+    print_review_accuracy(reviews, scores)
+    print_purchase_accuracy(would_purchase, purchased)
 
     with open('would_purchase.pkl', 'wb') as f:
         pickle.dump(would_purchase, f)
@@ -76,7 +76,7 @@ def calculate_answer(communities, friendships, reviews):
     return would_purchase
 
 
-def _print_review_accuracy(our_guesses, dologs_guesses):
+def print_review_accuracy(our_guesses, dologs_guesses):
     count = 0
     skipped = 0
 
@@ -93,7 +93,7 @@ def _print_review_accuracy(our_guesses, dologs_guesses):
     print(f'Review accuracy: {count / (len(our_guesses) - skipped)}')
 
 
-def _print_purchase_accuracy(our_guesses, dologs_guesses):
+def print_purchase_accuracy(our_guesses, dologs_guesses):
     count = 0
     for user, guess in our_guesses.items():
         if guess == dologs_guesses[user]:
@@ -102,7 +102,7 @@ def _print_purchase_accuracy(our_guesses, dologs_guesses):
     print(f'Purchase accuracy: {count / len(our_guesses)}')
 
 
-def _print_cluster_accuracy(our_guesses, dologs_guesses):
+def print_cluster_accuracy(our_guesses, dologs_guesses):
     cluster_conversion_index = {}
 
     count = 0
@@ -117,8 +117,7 @@ def _print_cluster_accuracy(our_guesses, dologs_guesses):
 
     print(f'Cluster accuracy: {count / len(our_guesses)}')
 
-
-def _print_cluster_yes_percentage(communities, would_purchase):
+def print_cluster_yes_percentage(communities, would_purchase):
     community_yes = {}
 
     # Calculate the percentage of yes's in each community
