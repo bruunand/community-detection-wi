@@ -1,12 +1,20 @@
 # Community detection
-- We tried both spectral clustering and hierarchical clustering using the Girvan Newman algorithm
+- We tried both spectral clustering and hierarchical clustering using the Girvan-Newman algorithm
 - The Girvan Newman algorithm was simply too slow. In practice, it took several minutes for just one betweenness
 calculation
 
 ## Girvan-Newman
 - Detected the same number of clusters as spectral clustering approach
 - Based on random observations, cluster appeared to be the same as produced by spectral clustering
-- However, it took **3 hours** to find these clusters. After removal of edge *e*, we calculate all shortest paths again, to find the betweenness centrality. This is not necessary, as we only have to update the shortest paths that used *e*. 
+- However, it took **3 hours** to find these clusters. After removal of edge *e*, we calculate all shortest paths again,
+to find the betweenness centrality. This is not necessary, as we only have to update the shortest paths that used *e*.
+
+### Examples
+- In this mock data example, we first show the initial graph with one connected component
+![Initial graph](community_detection/girwan-1.png "Initial graph")
+- After the Girwan-Newman algorithm finishes, the level with three connected components is found to have the highest
+modularity
+![Final graph](community_detection/girwan-2.png "Final graph")
 
 ## Spectral clustering
 - In order to detect the amount of clusters, we plotted the values of the second eigenvector

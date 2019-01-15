@@ -114,6 +114,7 @@ def print_cluster_accuracy(our_guesses, dologs_guesses):
 
     print(f'Cluster accuracy: {count / len(our_guesses)}')
 
+
 def print_cluster_yes_percentage(communities, would_purchase):
     community_yes = {}
 

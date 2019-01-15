@@ -1,0 +1,51 @@
+user: anders
+friends:	theis	brams	jarlund	matias
+
+user: theis
+friends:	brams	anders	jarlund
+
+user: matias
+friends:	thomas	anders	0
+
+user: thomas
+friends:	0	matias
+
+user: 0
+friends:	thomas	matias
+
+user: brams
+friends:	anders	theis	jarlund
+
+user: jarlund
+friends:	anders	brams	theis
+
+
+user: 0
+friends:	a	b	c	d	e	f	g
+
+user: a
+friends:	0	b	c	d	e	f	g
+
+user: b
+friends:	0	a	c	d	e	f	g
+
+user: c
+friends:	0	a	b	d	e	f	g
+
+user: d
+friends:	0	a	b	c	e	f	g
+
+user: e
+friends:	0	a	b	c	d	f	g
+
+user: f
+friends:	0	a	b	c	d	e	g
+
+user: g
+friends:	0	a	b	c	d	e	f
+
+user: k
+friends:	none
+
+user: none
+friends:	k	a

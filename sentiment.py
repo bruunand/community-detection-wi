@@ -10,7 +10,6 @@ import numpy as np
 from loguru import logger
 from nltk import word_tokenize
 from nltk.corpus import stopwords
-from stemming.porter2 import stem
 
 stop_words = set(stopwords.words('english'))
 

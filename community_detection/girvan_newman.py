@@ -25,6 +25,9 @@ class Communities:
         # Get the graph
         graph = self.make_graph(self.friendships)
 
+        nx.draw(graph)
+        plt.show()
+
         # Get status of starting graph
         num_nodes = graph.number_of_nodes()
         components = nx.connected_component_subgraphs(graph)
@@ -35,7 +38,7 @@ class Communities:
 
         # Continue removing edges until all edges are removed or there are 15 communities.
         # We stop at 10 components as we expect between 2 and 10 communities.
-        while n_components != num_nodes and n_components < 10:
+        while n_components != num_nodes:# and n_components < 10:
             graph.remove_edge(*self.edge_to_remove(graph))
             logger.info('Removing edge')
             components = nx.connected_component_subgraphs(graph)
@@ -115,6 +118,9 @@ class Communities:
 if __name__ == "__main__":
     c = Communities()
     result = c.run_girvan()
+
+    nx.draw(result)
+    plt.show()
 
     logger.info(f'{len(list(nx.connected_component_subgraphs(result)))} communities')
     pickle.dump(result, open('girvan.pkl', 'wb'))
