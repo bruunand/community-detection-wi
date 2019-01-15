@@ -18,7 +18,7 @@ def calculate_would_buy():
         num_terms_pr_class = model['terms_per_class']
         class_prob = model['class_probability']
 
-    with open('communities.p', 'rb') as f:
+    with open('community_detection/communities_test.p', 'rb') as f:
         communities = pickle.load(f)
 
     logger.debug('Loaded data')
@@ -50,28 +50,27 @@ def calculate_answer(communities, friendships, reviews):
     for user, community in communities.items():
         score = 0
 
-        # For each friend add the score and respective count
-        for friend in friendships[user]:
-            friend_community = communities[friend]
-
-            # If friend has a review, get the label, otherwise continue.
-            if friend in reviews:
-                label = reviews[friend]
-            else:
-                continue
-
-            # A friend outside the community counts for 10 times and kyle for 10 times
-            weight = -1 if not label else 1
-            if friend_community != community or friend == 'kyle':
-                score += weight * 10
-            else:
-                score += weight
-
-        # If there are no friends with review, the answer will be no. Otherwise it is calculated
-        if not friendships[user]:
-            would_purchase[user] = 'no'
+        if user in reviews:
+            score = reviews[user]
         else:
-            would_purchase[user] = 'yes' if score else 'no'
+            # For each friend add the score and respective count
+            for friend in friendships[user]:
+                friend_community = communities[friend]
+
+                # If friend has a review, get the label, otherwise continue.
+                if friend in reviews:
+                    label = reviews[friend]
+                else:
+                    continue
+
+                # A friend outside the community counts for 10 times and kyle for 10 times
+                weight = 1 if label else 0
+                if friend_community != community or friend == 'kyle':
+                    score += weight * 10
+                else:
+                    score += weight
+
+        would_purchase[user] = 'yes' if score > 0 else 'no'
 
     return would_purchase
 
@@ -87,8 +86,6 @@ def print_review_accuracy(our_guesses, dologs_guesses):
         if _class:
             if guess == _class:
                 count += 1
-        else:
-            skipped += 1
 
     print(f'Review accuracy: {count / (len(our_guesses) - skipped)}')
 

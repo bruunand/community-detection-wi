@@ -302,7 +302,7 @@ def preprocessing(text):
     soup = bs4.BeautifulSoup(text, 'html.parser')
     text = soup.text
 
-    return [stem(token) for token in word_tokenize(text) if re.match(r'\w+', token) and token not in stop_words]
+    return [token for token in word_tokenize(text) if re.match(r'\w+', token) and token not in stop_words]
 
 
 if __name__ == "__main__":
