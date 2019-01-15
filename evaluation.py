@@ -48,7 +48,6 @@ def calculate_answer(communities, friendships, reviews):
 
     # Calculate for each user if they would purchase a fine food
     for user, community in communities.items():
-        count = 0
         score = 0
 
         # For each friend add the score and respective count
@@ -62,19 +61,17 @@ def calculate_answer(communities, friendships, reviews):
                 continue
 
             # A friend outside the community counts for 10 times and kyle for 10 times
+            weight = -1 if not label else 1
             if friend_community != community or friend == 'kyle':
-                score += label * 10
-                count += 10
+                score += weight * 10
             else:
-                score += label
-                count += 1
+                score += weight
 
         # If there are no friends with review, the answer will be no. Otherwise it is calculated
-        if count == 0:
-            logger.debug(user)
+        if not friendships[user]:
             would_purchase[user] = 'no'
         else:
-            would_purchase[user] = 'yes' if score / count >= 0.5 else 'no'
+            would_purchase[user] = 'yes' if score else 'no'
 
     return would_purchase
 
@@ -105,7 +102,7 @@ def _print_purchase_accuracy(our_guesses, dologs_guesses):
     print(f'Purchase accuracy: {count / len(our_guesses)}')
 
 
-def _print_cluster_acccuracy(our_guesses, dologs_guesses):
+def _print_cluster_accuracy(our_guesses, dologs_guesses):
     cluster_conversion_index = {}
 
     count = 0

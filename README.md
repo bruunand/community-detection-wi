@@ -78,7 +78,9 @@ training and the same subset is used for testing
 
 # Combining models
 - Our sentiment model has a higher chance of labelling the reviews positive than negative, as seen with the recall.
-This means that we are more likely to say that a user would purchase fine food
+This means that we are more likely to say that a user would purchase fine food. However, the precision on the positive
+class is lower than that of the negative class, so in many cases where we guess positive, the ground truth is negative.
+This is why the majority fractions of our communities wish to buy fine foods
 - We assumed that 'kyle' did not have 10*10 times the influence when not in the same community, but only ten
 - When compared to the results dataset, it was not that accurate. This might be the result of different 
 community splits but also the result of different classifications of reviews
