@@ -80,8 +80,11 @@ def print_review_accuracy(our_guesses, dologs_guesses):
     for user, guess in our_guesses.items():
         _class = class_from_score(dologs_guesses[user])
 
-        if _class and guess == _class:
-            count += 1
+        if _class:
+            if guess == _class:
+                count += 1
+        else:
+            skipped += 1
 
     print(f'Review accuracy: {count / (len(our_guesses) - skipped)}')
 
