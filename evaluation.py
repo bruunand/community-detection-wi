@@ -12,10 +12,8 @@ def calculate_would_buy():
 
     with open('model.pkl', 'rb') as f:
         model = pickle.load(f)
-        vocab = model['vocabulary']
         vocab_index = model['vocabulary_index']
-        term_freq_matrix = model['term_frequency_per_class']
-        num_terms_pr_class = model['terms_per_class']
+        term_probability_matrix = model['term_probability_matrix']
         class_prob = model['class_probability']
 
     with open('community_detection/communities_test.p', 'rb') as f:
@@ -26,8 +24,7 @@ def calculate_would_buy():
     # Replaces the review with a label.
     for user, review in reviews.items():
         data = preprocessing(review)
-        vector = count_vectorizer(vocab, [data], vocab_index)[0]  # Count vectorizer expects and returns double array.
-        reviews[user] = predict(vector, term_freq_matrix, num_terms_pr_class, class_prob)
+        reviews[user] = predict(data, vocab_index, term_probability_matrix, class_prob)
 
     logger.debug('Predicted reviews')
 
@@ -86,6 +83,8 @@ def print_review_accuracy(our_guesses, dologs_guesses):
         if _class:
             if guess == _class:
                 count += 1
+        else:
+            skipped += 1
 
     print(f'Review accuracy: {count / (len(our_guesses) - skipped)}')
 
