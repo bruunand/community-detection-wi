@@ -1,3 +1,6 @@
+# Introduction
+Second miniproject of the Web Intelligence course at AAU. In this miniproject, we implemented community detection and a simple Naive Bayes classifier for sentiment analysis.
+
 # Community detection
 - We tried both spectral clustering and hierarchical clustering using the Girvan-Newman algorithm
 - The Girvan Newman algorithm was simply too slow. In practice, it took several minutes for just one betweenness
