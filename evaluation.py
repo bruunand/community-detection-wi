@@ -1,4 +1,5 @@
 import pickle
+import random
 
 from loguru import logger
 
@@ -31,6 +32,8 @@ def calculate_would_buy():
     would_purchase = calculate_answer(communities, friendships, reviews)
     logger.debug('Calculated would purchase')
 
+    scores = convert_to_balanced(scores)
+
     print_cluster_yes_percentage(communities, would_purchase)
     print_cluster_accuracy(communities, clusters)
     print_review_accuracy(reviews, scores)
@@ -44,6 +47,37 @@ def calculate_would_buy():
         pickle.dump(would_purchase, f)
 
 
+def convert_to_balanced(scores):
+    pos = 0
+    neg = 0
+    user_pos = set()
+    user_neg = set()
+
+    for user, score in scores.items():
+        score = class_from_score(score)
+
+        if score is None:
+            continue
+
+        if score:
+            pos += 1
+            user_pos.add(user)
+        else:
+            neg += 1
+            user_neg.add(user)
+
+    tmp1 = {user: scores[user] for user in user_pos}
+    tmp2 = {user: scores[user] for user in user_neg}
+
+    count = pos if pos < neg else neg
+
+    print(f'size {count}')
+
+    res = random.sample(user_pos, count) + random.sample(user_neg, count)
+
+    return {user: scores[user] for user in res}
+
+
 def calculate_answer(communities, friendships, reviews):
     would_purchase = {}
 
@@ -54,7 +88,6 @@ def calculate_answer(communities, friendships, reviews):
 
         if user in reviews:
             score = reviews[user]
-
         else:
             # For each friend add the score and respective count
             for friend in friendships[user]:
@@ -69,7 +102,7 @@ def calculate_answer(communities, friendships, reviews):
                 # A friend outside the community counts for 10 times and kyle for 10 times
                 weight = 1 if label else -1
                 if friend_community != community or friend == 'kyle':
-                    score += weight * 100
+                    score += weight * 10
                 else:
                     score += weight
 
@@ -84,6 +117,10 @@ def print_review_accuracy(our_guesses, dologs_guesses):
 
     # Calculates accuracy though we skip reviews with 3 as a score.
     for user, guess in our_guesses.items():
+        if user not in dologs_guesses:
+            skipped += 1
+            continue
+
         _class = class_from_score(dologs_guesses[user])
 
         if _class is not None:
@@ -98,12 +135,17 @@ def print_review_accuracy(our_guesses, dologs_guesses):
 def print_review_precision(our_guesses, dologs_guesses, label):
     true_positive = 0
     positive = 0
+    skipped = 0
 
     # Calculates accuracy though we skip reviews with 3 as a score.
     for user, guess in our_guesses.items():
+        if user not in dologs_guesses:
+            continue
+
         _class = class_from_score(dologs_guesses[user])
 
         if _class is not None:
+
             if guess == label:
                 positive += 1
                 if guess == _class:
@@ -118,8 +160,10 @@ def print_review_recall(our_guesses, dologs_guesses, label):
 
     # Calculates accuracy though we skip reviews with 3 as a score.
     for user, guess in our_guesses.items():
-        _class = class_from_score(dologs_guesses[user])
+        if user not in dologs_guesses:
+            continue
 
+        _class = class_from_score(dologs_guesses[user])
         if _class is not None:
             if _class == label:
                 all_positive += 1

@@ -98,8 +98,8 @@ reviews
 
 |     |  Precision |  Recall |
 |-----|-----------:|--------:|
-| Pos |      0.981 |   0.851 |
-| Neg |      0.488 |   0.893 |
+| Pos |      0.890 |   0.867 |
+| Neg |      0.870 |   0.893 |
 
 - We correctly labels almost all positive reviews but fail to classify half of the negative reviews
 - There is therefore a very high chance of us labelling the review positive. When aggregating the opinions of multiple 

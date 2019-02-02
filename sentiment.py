@@ -16,10 +16,10 @@ stop_words = set(stopwords.words('english'))
 
 def class_from_score(score):
     score_classes = {
-        '0.0': 0,
+        '0.0': None,
         '1.0': 0,
         '2.0': 0,
-        '3.0': 1,
+        '3.0': None,
         '4.0': 1,
         '5.0': 1,
     }
