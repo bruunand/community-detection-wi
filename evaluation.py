@@ -4,7 +4,7 @@ import random
 from loguru import logger
 
 from data_loader import import_data, import_results
-from sentiment import predict, count_vectorizer, preprocessing, class_from_score
+from sentiment import predict, preprocessing, class_from_score
 
 
 def calculate_would_buy():
